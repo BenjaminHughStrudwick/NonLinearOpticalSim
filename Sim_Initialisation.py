@@ -10,7 +10,7 @@ from scipy.constants import physical_constants
 
 class Sim_param:
     
-    
+
     
     def __init__(self, N, t_max):
         self.N = N
@@ -19,6 +19,13 @@ class Sim_param:
         self.fs2au = 1e-15/physical_constants['atomic unit of time'][0]
         self.dt = self.fs2au*(2*self.t_max)/self.N
         self.t = (np.arange(-1*self.t_max, self.t_max, self.dt))*self.fs2au
+
+        self.Omega = 2*np.pi*np.arange(-1*self.N/2 +1, self.N/2 + 1)/self.N/self.dt
+        self.omega_shifted = np.fft.fftshift(self.Omega)
+        self.lam = np.divide((0.057*800), self.Omega, out=np.zeros_like(self.Omega), where=self.Omega!=0)
+        self.lam[int(np.where(self.lam == 0)[0])] = np.inf #Corrects previous line x / 0 = inf
+        self.d_Omega = self.Omega[1] - self.Omega[0]
+
         
     def get_Precision(self):
         return self.N
@@ -46,21 +53,20 @@ class Sim_param:
 
 class Pulse(Sim_param):
 
-    def __init__(self, Wavelength, Intensity, Duration, Delay, simparam):
+    
+    def __init__(self, Intensity, Duration, Delay, simparam, Wavelength=None):
         
         self.N = simparam.N
         self.t_max = simparam.t_max
         self.fs2au = simparam.fs2au
         self.dt = simparam.dt
         self.t = simparam.t
-
-
-        self.Wavelength = Wavelength
         self.Intensity = Intensity
         self.Duration = Duration*self.fs2au
         self.Delay = Delay*self.fs2au
+        self.Wavelength = Wavelength if Wavelength is not None else 1
         
-        self.Omega = (0.057*800)/self.Wavelength
+        self.Pulse_Omega = (0.057*800)/self.Wavelength
         self.E_field = np.sqrt(self.Intensity/3.509e16)
 
     def get_Wavelength(self):
@@ -68,16 +74,16 @@ class Pulse(Sim_param):
 
     def set_Wavelength(self, Wavelength):
         self.Wavelength = Wavelength
-        self.Omega = (0.057*800)/self.Wavelength
+        self.Pulse_Omega = (0.057*800)/self.Wavelength
         return self.Wavelength
 
-    def get_Omega(self):
-        return self.Omega
+    def get_Pulse_Omega(self):
+        return self.Pulse_Omega
 
-    def set_Omega(self, Omega):
-        self.Omega = Omega
-        self.Wavelength = (0.057*800)/self.Omega
-        return self.Omega
+    def set_Pulse_Omega(self, Pulse_Omega):
+        self.Pulse_Omega = Pulse_Omega
+        self.Wavelength = (0.057*800)/self.Pulse_Omega
+        return self.Pulse_Omega
 
     def get_t_fs(self):
         return self.t/self.fs2au
@@ -92,9 +98,15 @@ class Pulse(Sim_param):
         self.Delay = Delay*self.fs2au
         return self.Delay
 
+    def get_lamda(self):
+        return self.lam
+    
+    def get_dOmega(self):
+        return self.d_Omega
+
 
 
     def get_E_field_t(self):
-        self.E_field_t = self.E_field*np.exp(-2*np.log(2)*(self.t - self.Delay)**(2)/self.Duration**2)*np.exp(1j*self.Omega*(self.t - self.Delay))
+        self.E_field_t = self.E_field*np.exp(-2*np.log(2)*(self.t - self.Delay)**(2)/self.Duration**2)*np.exp(1j*self.Pulse_Omega*(self.t - self.Delay))
         return self.E_field_t
 
