@@ -6,7 +6,7 @@ different frequency.
 
 ## Files contained
 
-main.py : Run the simulation from this file. It should produce a graph.\n
+main.py : Run the simulation from this file. It should produce a graph.  
 Sim_Initialisation.py : This contains classes to intialisation the simulation and the pulses
 Crystal_module.py : Contains crystal information and functions
 
