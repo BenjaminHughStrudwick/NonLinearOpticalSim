@@ -18,8 +18,9 @@ Idler.set_Pulse_Omega(Pump.get_Pulse_Omega() - Seed.get_Pulse_Omega())
 medium = Cm.Crystal('AgGaSe2', 1e-6)
 
 
-plt.plot(Idler.get_t_fs(), Idler.get_E_field_t())
-plt.xlim(-400,400)
-plt.show()
 
-print(medium.au2mm)
+#plt.plot(Idler.get_t_fs(), Idler.get_E_field_t())
+#plt.xlim(-400,400)
+#plt.show()
+
+print(medium.Sellmeier_cnst())
