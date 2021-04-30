@@ -10,15 +10,15 @@ from scipy.constants import physical_constants
 
 class Sim_param:
     
-
+    fs2au = 1e-15/physical_constants['atomic unit of time'][0]
     
     def __init__(self, N, t_max):
         self.N = N
         self.t_max = t_max
         
-        self.fs2au = 1e-15/physical_constants['atomic unit of time'][0]
-        self.dt = self.fs2au*(2*self.t_max)/self.N
-        self.t = (np.arange(-1*self.t_max, self.t_max, self.dt))*self.fs2au
+
+        self.dt = Sim_param.fs2au*(2*self.t_max)/self.N
+        self.t = (np.arange(-1*self.t_max, self.t_max, self.dt))*Sim_param.fs2au
 
         self.Omega = 2*np.pi*np.arange(-1*self.N/2 +1, self.N/2 + 1)/self.N/self.dt
         self.omega_shifted = np.fft.fftshift(self.Omega)
@@ -48,7 +48,10 @@ class Sim_param:
         return self.dt
     
     def get_fs2au(self):
-        return self.fs2au
+        return Sim_param.fs2au
+    
+    def get_d_Omega(self):
+        return self.d_Omega
 
 
 class Pulse(Sim_param):
@@ -58,11 +61,10 @@ class Pulse(Sim_param):
         
         self.N = simparam.N
         self.t_max = simparam.t_max
-        self.fs2au = simparam.fs2au
         self.dt = simparam.dt
         self.t = simparam.t
         self.Intensity = Intensity
-        self.Duration = Duration*self.fs2au
+        self.Duration = Duration*Sim_param.fs2au
         self.Delay = Delay*self.fs2au
         self.Wavelength = Wavelength if Wavelength is not None else 1
         
@@ -86,16 +88,16 @@ class Pulse(Sim_param):
         return self.Pulse_Omega
 
     def get_t_fs(self):
-        return self.t/self.fs2au
+        return self.t/Sim_param.fs2au
 
     def get_Delay_fs(self):
-        return self.Delay/self.fs2au
+        return self.Delay/Sim_param.fs2au
 
     def get_Delay_au(self):
         return self.Delay
 
     def set_Delay(self, Delay):
-        self.Delay = Delay*self.fs2au
+        self.Delay = Delay*Sim_param.fs2au
         return self.Delay
 
     def get_lamda(self):
@@ -103,7 +105,6 @@ class Pulse(Sim_param):
     
     def get_dOmega(self):
         return self.d_Omega
-
 
 
     def get_E_field_t(self):
