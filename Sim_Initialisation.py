@@ -67,8 +67,13 @@ class Pulse(Sim_param):
         self.Duration = Duration*Sim_param.fs2au
         self.Delay = Delay*self.fs2au
         self.Wavelength = Wavelength if Wavelength is not None else 1
-        
-        self.Pulse_Omega = (0.057*800)/self.Wavelength
+        try:
+            self.Pulse_Omega = (0.057*800)/self.Wavelength
+        except(ZeroDivisionError):
+            print('Please Input Nonzero Wavelength. Default set to equal 1nm')
+            self.Wavelength = 1
+            self.Pulse_Omega = (0.057*800)/self.Wavelength
+
         self.E_field = np.sqrt(self.Intensity/3.509e16)
 
     def get_Wavelength(self):
