@@ -16,10 +16,8 @@ class Sim_param:
         self.N = N
         self.t_max = t_max
         
-
-        self.dt = Sim_param.fs2au*(2*self.t_max)/self.N
-        self.t = (np.arange(-1*self.t_max, self.t_max, self.dt))*Sim_param.fs2au
-
+        self.t = (np.arange(-1*self.t_max, self.t_max, (2*self.t_max)/self.N))*Sim_param.fs2au
+        self.dt = (Sim_param.fs2au*(2*self.t_max))/self.N
         self.Omega = 2*np.pi*np.arange(-1*self.N/2 +1, self.N/2 + 1)/self.N/self.dt
         self.omega_shifted = np.fft.fftshift(self.Omega)
         self.lam = np.divide((0.057*800), self.Omega, out=np.zeros_like(self.Omega), where=self.Omega!=0)
@@ -63,6 +61,7 @@ class Pulse(Sim_param):
         self.t_max = simparam.t_max
         self.dt = simparam.dt
         self.t = simparam.t
+        self.lam = simparam.lam
         self.Intensity = Intensity
         self.Duration = Duration*Sim_param.fs2au
         self.Delay = Delay*self.fs2au
@@ -115,4 +114,10 @@ class Pulse(Sim_param):
     def get_E_field_t(self):
         self.E_field_t = self.E_field*np.exp(-2*np.log(2)*(self.t - self.Delay)**(2)/self.Duration**2)*np.exp(1j*self.Pulse_Omega*(self.t - self.Delay))
         return self.E_field_t
+
+    def get_idx(self):
+        self.idx = int(np.where(abs(self.lam - self.Wavelength) == min(abs(self.lam - self.Wavelength)))[0])
+        return self.idx
+
+
 
